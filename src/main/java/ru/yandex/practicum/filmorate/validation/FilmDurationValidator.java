@@ -3,8 +3,6 @@ package ru.yandex.practicum.filmorate.validation;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.time.Duration;
-import java.time.LocalDate;
-import java.time.Month;
 
 public class FilmDurationValidator implements ConstraintValidator<FilmDuration, Duration> {
     @Override

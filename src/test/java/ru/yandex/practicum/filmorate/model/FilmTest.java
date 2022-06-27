@@ -10,7 +10,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Month;
@@ -18,7 +17,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static ru.yandex.practicum.filmorate.testutils.TestUtils.violationsToMap;
 import static ru.yandex.practicum.filmorate.validation.FilmReleaseDateValidator.FIRST_FILM;
 
