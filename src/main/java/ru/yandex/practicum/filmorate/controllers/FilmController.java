@@ -22,7 +22,7 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 @RequestMapping("/films")
 @Slf4j
 public class FilmController {
-    private static long id = 1;
+    private long id = 1;
     private final Map<Long, Film> films = new HashMap<>();
 
     @PostMapping

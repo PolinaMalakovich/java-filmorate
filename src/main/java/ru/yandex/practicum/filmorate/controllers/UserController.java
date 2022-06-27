@@ -22,7 +22,7 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 @RequestMapping("/users")
 @Slf4j
 public class UserController {
-    private static long id = 1;
+    private long id = 1;
     private final Map<Long, User> users = new HashMap<>();
 
     @PostMapping
