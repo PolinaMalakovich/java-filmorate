@@ -42,7 +42,7 @@ class FilmTest {
     @ValueSource(strings = { "", " ", "\t", "\n", "\r" })
     public void nameValidation(String name) {
         Film film = new Film(
-                0,
+                0L,
                 name,
                 "description",
                 LocalDate.of(2021, Month.JUNE, 26),
@@ -58,7 +58,7 @@ class FilmTest {
     @Test
     public void descriptionCannotBeLongerThan200Characters() {
         Film film = new Film(
-                0,
+                0L,
                 "film",
                 "The description of this film is way longer than it should be. " +
                         "It must not be longer than 200 characters, " +
@@ -77,7 +77,7 @@ class FilmTest {
     @Test
     public void releaseDateCannotBeEarlierThan28December1895() {
         Film film = new Film(
-                0,
+                0L,
                 "name",
                 "description",
                 FIRST_FILM.minusDays(1),

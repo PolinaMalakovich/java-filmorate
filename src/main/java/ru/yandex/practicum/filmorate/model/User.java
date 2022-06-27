@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @With
 @Data
 public class User {
-    private final Integer id;
+    private final Long id;
 
     @NotEmpty(message = "Email cannot be null or empty")
     @Email(message = "Email should be valid")

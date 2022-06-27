@@ -38,7 +38,7 @@ class UserTest {
     @ValueSource(strings = { "" })
     public void emailCannotBeNullOrEmpty(String email) {
         User user = new User(
-                0,
+                0L,
                 email,
                 "login",
                 "name",
@@ -55,7 +55,7 @@ class UserTest {
     @ValueSource(strings = { " ", "\t", "\n", "\r", "@email.com", "email@.com" })
     public void emailValidation(String email) {
         User user = new User(
-                0,
+                0L,
                 email,
                 "login",
                 "name",
@@ -73,7 +73,7 @@ class UserTest {
     @ValueSource(strings = { "", " ", "\t", "\n", "\r" })
     public void loginValidation(String login) {
         User user = new User(
-                0,
+                0L,
                 "example@gmail.com",
                 login,
                 "name",
@@ -89,7 +89,7 @@ class UserTest {
     @Test
     public void birthdayCannotBeInTheFuture() {
         User user = new User(
-                0,
+                0L,
                 "example@gmail.com",
                 "login",
                 "name",
