@@ -25,4 +25,12 @@ public class User {
 
     @Past(message = "Birthday should be in the past")
     private final LocalDate birthday;
+
+    public User(Long id, String email, String login, String name, LocalDate birthday) {
+        this.id = id;
+        this.email = email;
+        this.login = login;
+        this.name = name == null || name.isEmpty() || name.isBlank() ? login : name;
+        this.birthday = birthday;
+    }
 }

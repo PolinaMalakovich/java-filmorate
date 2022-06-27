@@ -28,9 +28,6 @@ public class UserController {
     @PostMapping
     public User addUser(@Valid @RequestBody User newUser) {
         User user = newUser.withId(id++);
-        if (newUser.getName() == null || newUser.getName().isEmpty()) {
-            user = user.withName(newUser.getLogin());
-        }
         users.put(user.getId(), user);
         log.info("New user created successfully");
 

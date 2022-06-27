@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import ru.yandex.practicum.filmorate.controllers.UserController;
 
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -84,6 +85,20 @@ class UserTest {
         );
 
         assertEquals(expected, violationsToMap(validator.validate(user)));
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = { "", " ", "\t", "\n", "\r" })
+    public void nameValidation(String name) {
+        User user = new User(
+                0L,
+                "example@gmail.com",
+                "login",
+                name,
+                LocalDate.of(2021, Month.JUNE, 26));
+
+        assertEquals(user.getLogin(), user.getName());
     }
 
     @Test
