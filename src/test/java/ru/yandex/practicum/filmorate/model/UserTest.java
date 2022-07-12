@@ -12,6 +12,8 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,7 +44,8 @@ class UserTest {
                 email,
                 "login",
                 "name",
-                LocalDate.of(2021, Month.JUNE, 26));
+                LocalDate.of(2021, Month.JUNE, 26),
+                new HashSet<>());
 
         Map<String, Set<String>> expected = Map.ofEntries(
                 Map.entry("email", Set.of("Email cannot be null or empty"))
@@ -59,7 +62,8 @@ class UserTest {
                 email,
                 "login",
                 "name",
-                LocalDate.of(2021, Month.JUNE, 26));
+                LocalDate.of(2021, Month.JUNE, 26),
+                new HashSet<>());
 
         Map<String, Set<String>> expected = Map.ofEntries(
                 Map.entry("email", Set.of("Email should be valid"))
@@ -77,7 +81,8 @@ class UserTest {
                 "example@gmail.com",
                 login,
                 "name",
-                LocalDate.of(2021, Month.JUNE, 26));
+                LocalDate.of(2021, Month.JUNE, 26),
+                new HashSet<>());
 
         Map<String, Set<String>> expected = Map.ofEntries(
                 Map.entry("login", Set.of("Login cannot be blank"))
@@ -95,7 +100,8 @@ class UserTest {
                 "example@gmail.com",
                 "login",
                 name,
-                LocalDate.of(2021, Month.JUNE, 26));
+                LocalDate.of(2021, Month.JUNE, 26),
+                new HashSet<>());
 
         assertEquals(user.getLogin(), user.getName());
     }
@@ -107,7 +113,8 @@ class UserTest {
                 "example@gmail.com",
                 "login",
                 "name",
-                LocalDate.of(2023, Month.JUNE, 26));
+                LocalDate.of(2023, Month.JUNE, 26),
+                new HashSet<>());
 
         Map<String, Set<String>> expected = Map.ofEntries(
                 Map.entry("birthday", Set.of("Birthday should be in the past"))

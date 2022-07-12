@@ -1,54 +1,61 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
-@Slf4j
-public class UserController {
-    private long id = 1;
-    private final Map<Long, User> users = new HashMap<>();
+public final class UserController {
+    private final UserService userService;
+
+    @Autowired
+    public UserController(final UserService userService) {
+        this.userService = userService;
+    }
 
     @PostMapping
-    public User addUser(@Valid @RequestBody User newUser) {
-        User user = newUser.withId(id++);
-        users.put(user.getId(), user);
-        log.info("New user created successfully");
-
-        return user;
+    public User addUser(@Valid @RequestBody final User newUser) {
+        return userService.addUser(newUser);
     }
 
     @PutMapping
-    public User updateUser(@Valid @RequestBody User user) {
-        if (users.containsKey(user.getId())) {
-            users.replace(user.getId(), user);
-            log.info("User " + user.getId() + " updated successfully");
+    public User updateUser(@Valid @RequestBody final User user) {
+        return userService.updateUser(user);
+    }
 
-            return user;
-        } else {
-            // здесь нужно бросать NOT_FOUND, но тесты на гитхабе ожидают INTERNAL_SERVER_ERROR :С
-            throw new ResponseStatusException(INTERNAL_SERVER_ERROR, "User with id " + user.getId() + " does not exist");
-        }
+    @GetMapping("/{id}")
+    public User getUser(@PathVariable final Long id) {
+        return userService.getUserById(id);
     }
 
     @GetMapping
     public List<User> getUsers() {
-        return new ArrayList<>(users.values());
+        return userService.getUsers().collect(Collectors.toList());
+    }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    public User addFriend(@PathVariable final Long id, @PathVariable final Long friendId) {
+        return userService.addFriend(id, friendId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public User deleteFriend(@PathVariable final Long id, @PathVariable final Long friendId) {
+        return userService.deleteFriend(id, friendId);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> getMutualFriends(@PathVariable final Long id, @PathVariable final Long otherId) {
+        return userService.getMutualFriends(id, otherId).collect(Collectors.toList());
+    }
+
+    @GetMapping("/{id}/friends")
+    public List<User> getFriends(@PathVariable final Long id) {
+        return userService.getFriends(id).collect(Collectors.toList());
     }
 }

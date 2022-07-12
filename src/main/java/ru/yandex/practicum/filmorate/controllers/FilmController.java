@@ -1,54 +1,61 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.HashMap;
+import javax.validation.constraints.Min;
 import java.util.List;
-import java.util.Map;
-
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/films")
-@Slf4j
-public class FilmController {
-    private long id = 1;
-    private final Map<Long, Film> films = new HashMap<>();
+public final class FilmController {
+    private final FilmService filmService;
+
+    @Autowired
+    public FilmController(final FilmService filmService) {
+        this.filmService = filmService;
+    }
 
     @PostMapping
-    public Film addFilm(@Valid @RequestBody Film newFilm) {
-        final Film film = newFilm.withId(id++);
-        films.put(film.getId(), film);
-        log.info("New film created successfully");
-
-        return film;
+    public Film addFilm(@Valid @RequestBody final Film newFilm) {
+        return filmService.addFilm(newFilm);
     }
 
     @PutMapping
-    public Film updateFilm(@Valid @RequestBody Film film) {
-        if (films.containsKey(film.getId())) {
-            films.replace(film.getId(), film);
-            log.info("Film " + film.getId() + " updated successfully");
+    public Film updateFilm(@Valid @RequestBody final Film film) {
+        return filmService.updateFilm(film);
+    }
 
-            return film;
-        } else {
-            // здесь нужно бросать NOT_FOUND, но тесты на гитхабе ожидают INTERNAL_SERVER_ERROR :С
-            throw new ResponseStatusException(INTERNAL_SERVER_ERROR, "Film with id " + film.getId() + " does not exist");
-        }
+    @GetMapping("/{id}")
+    public Film getFilm(@PathVariable final Long id) {
+        return filmService.getFilmById(id);
     }
 
     @GetMapping
     public List<Film> getFilms() {
-        return new ArrayList<>(films.values());
+        return filmService.getFilms().collect(Collectors.toList());
+    }
+
+    @PutMapping("/{id}/like/{userId}")
+    public Film addLike(@PathVariable final Long id, @PathVariable final Long userId) {
+        return filmService.addLike(id, userId);
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public Film deleteLike(@PathVariable final Long id, @PathVariable final Long userId) {
+        return filmService.deleteLike(id, userId);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> getMostPopularFilms(
+            @RequestParam(required = false, defaultValue = "10")
+            @Min(1)
+            final Integer count
+    ) {
+        return filmService.getMostPopularFilms(count).collect(Collectors.toList());
     }
 }
