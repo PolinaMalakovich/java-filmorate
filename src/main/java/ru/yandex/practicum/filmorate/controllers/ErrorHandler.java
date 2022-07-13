@@ -24,7 +24,7 @@ public final class ErrorHandler {
     }
 
     @ExceptionHandler
-    public ResponseEntity<String> handleRuntimeException(final RuntimeException e) {
+    public ResponseEntity<String> handleThrowable(final Throwable e) {
         return new ResponseEntity<>(e.getMessage(), INTERNAL_SERVER_ERROR);
     }
 }
