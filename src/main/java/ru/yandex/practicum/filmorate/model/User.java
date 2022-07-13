@@ -3,12 +3,8 @@ package ru.yandex.practicum.filmorate.model;
 import lombok.Value;
 import lombok.With;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Past;
+import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -26,7 +22,7 @@ public class User {
 
     String name;
 
-    @Past(message = "Birthday should be in the past")
+    @PastOrPresent(message = "Birthday should be in the past")
     LocalDate birthday;
 
     Set<Long> friends;
