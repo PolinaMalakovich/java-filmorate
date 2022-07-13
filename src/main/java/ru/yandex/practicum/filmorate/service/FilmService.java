@@ -3,10 +3,10 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Comparator;
 import java.util.Set;
@@ -19,14 +19,14 @@ import static java.util.stream.Collectors.toSet;
 @Slf4j
 public final class FilmService {
     private final FilmStorage filmStorage;
-    private final UserStorage userStorage;
+    private final UserService userService;
     private static final Comparator<Film> MOST_LIKED_FILMS_FIRST =
             comparing((Film film) -> film.getLikes().count()).reversed();
 
     @Autowired
-    public FilmService(final FilmStorage filmStorage, final UserStorage userStorage) {
+    public FilmService(final FilmStorage filmStorage, final UserService userService) {
         this.filmStorage = filmStorage;
-        this.userStorage = userStorage;
+        this.userService = userService;
     }
 
     public Film addFilm(final Film newFilm) {
@@ -37,13 +37,17 @@ public final class FilmService {
     }
 
     public Film updateFilm(final Film film) {
-        final Film updated = filmStorage.updateFilm(film);
+        final Film updated = filmStorage.updateFilm(film)
+                .orElseThrow(() -> new EntityNotFoundException("Film", film.getId()));
         log.info("Film " + film.getId() + " updated successfully");
 
         return updated;
     }
 
-    public Film getFilmById(final Long id) { return filmStorage.getFilmById(id); }
+    public Film getFilmById(final Long id) {
+        return filmStorage.getFilmById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Film", id));
+    }
 
     public Stream<Film> getFilms() {
         return filmStorage.getFilms();
@@ -60,7 +64,7 @@ public final class FilmService {
     }
 
     private Film addOrDeleteLikeHelper(final Long id, final Long userId, final boolean shouldAdd) {
-        final User user = userStorage.getUserById(userId);
+        final User user = userService.getUserById(userId);
         final Film film = getFilmById(id);
         Set<Long> likes = film.getLikes().collect(toSet());
 

@@ -1,11 +1,11 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Component
@@ -22,20 +22,17 @@ public final class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film updateFilm(final Film film) {
-        checkIfIdExists(film.getId());
-        films.replace(film.getId(), film);
-        return film;
+    public Optional<Film> updateFilm(final Film film) {
+        return getFilmById(film.getId())
+                .map(f -> {
+                    films.replace(film.getId(), film);
+                    return film;
+                });
     }
 
     @Override
-    public Film getFilmById(final Long id) {
-        checkIfIdExists(id);
-        return films.get(id);
-    }
-
-    private void checkIfIdExists(final Long id) {
-        if (!films.containsKey(id)) throw new EntityNotFoundException("Film", id);
+    public Optional<Film> getFilmById(final Long id) {
+        return Optional.ofNullable(films.get(id));
     }
 
     @Override

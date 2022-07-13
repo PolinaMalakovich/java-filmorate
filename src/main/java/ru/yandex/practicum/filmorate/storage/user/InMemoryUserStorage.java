@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
@@ -21,32 +20,21 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User updateUser(final User user) {
-        checkIfIdExists(user.getId());
-        users.replace(user.getId(), user);
-        return user;
+    public Optional<User> updateUser(final User user) {
+        return getUserById(user.getId())
+                .map(f -> {
+                    users.replace(user.getId(), user);
+                    return user;
+                });
     }
 
     @Override
-    public User getUserById(final Long id) {
-        checkIfIdExists(id);
-        return users.get(id);
-    }
-
-    private void checkIfIdExists(final Long id) {
-        if (!users.containsKey(id)) throw new EntityNotFoundException("User", id);
+    public Optional<User> getUserById(final Long id) {
+        return Optional.ofNullable(users.get(id));
     }
 
     @Override
     public Stream<User> getUsers() {
         return users.values().stream();
-    }
-
-    @Override
-    public Stream<User> getFriends(final Long id) {
-        checkIfIdExists(id);
-        return getUserById(id)
-                .getFriends()
-                .map(this::getUserById);
     }
 }

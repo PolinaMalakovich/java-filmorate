@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -30,14 +31,16 @@ public final class UserService {
     }
 
     public User updateUser(final User user) {
-        final User updated = userStorage.updateUser(user);
+        final User updated = userStorage.updateUser(user)
+                .orElseThrow(() -> new EntityNotFoundException("User", user.getId()));
         log.info("User " + user.getId() + " updated successfully");
 
         return updated;
     }
 
     public User getUserById(final Long id) {
-        return userStorage.getUserById(id);
+        return userStorage.getUserById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User", id));
     }
 
     public Stream<User> getUsers() {
@@ -84,6 +87,8 @@ public final class UserService {
     }
 
     public Stream<User> getFriends(final Long id) {
-        return userStorage.getFriends(id);
+        return getUserById(id)
+                .getFriends()
+                .map(this::getUserById);
     }
 }
