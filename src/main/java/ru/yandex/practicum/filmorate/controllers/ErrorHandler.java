@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.controllers;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 
@@ -14,20 +14,17 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 @RestControllerAdvice
 public final class ErrorHandler {
     @ExceptionHandler
-    @ResponseStatus(BAD_REQUEST)
-    public ErrorResponse handleValidationException(final ValidationException e) {
-        return new ErrorResponse("ValidationException", e.getMessage());
+    public ResponseEntity<String> handleValidationException(final ValidationException e) {
+        return new ResponseEntity<>(e.getMessage(), BAD_REQUEST);
     }
 
     @ExceptionHandler
-    @ResponseStatus(NOT_FOUND)
-    public ErrorResponse handleEntityNotFoundException(final EntityNotFoundException e) {
-        return new ErrorResponse("EntityNotFoundException", e.getMessage());
+    public ResponseEntity<String> handleEntityNotFoundException(final EntityNotFoundException e) {
+        return new ResponseEntity<>(e.getMessage(), NOT_FOUND);
     }
 
     @ExceptionHandler
-    @ResponseStatus(INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleRuntimeException(final RuntimeException e) {
-        return new ErrorResponse("RuntimeException", e.getMessage());
+    public ResponseEntity<String> handleRuntimeException(final RuntimeException e) {
+        return new ResponseEntity<>(e.getMessage(), INTERNAL_SERVER_ERROR);
     }
 }
