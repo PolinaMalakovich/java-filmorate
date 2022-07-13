@@ -5,17 +5,36 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
 
+import java.util.Map;
+
+import static java.util.stream.Collectors.toMap;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static ru.yandex.practicum.filmorate.utils.StringUtils.suffix;
 
 @RestControllerAdvice
 public final class ErrorHandler {
     @ExceptionHandler
     public ResponseEntity<String> handleValidationException(final ValidationException e) {
         return new ResponseEntity<>(e.getMessage(), BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<Map<String, String>> handleConstraintViolationException(
+            final ConstraintViolationException e
+    ) {
+        final Map<String, String> errorDetails = e.getConstraintViolations()
+                .stream()
+                .collect(toMap(
+                        violation -> suffix(violation.getPropertyPath().toString(), '.'),
+                        ConstraintViolation::getMessage
+                ));
+        return new ResponseEntity<>(errorDetails, BAD_REQUEST);
     }
 
     @ExceptionHandler
