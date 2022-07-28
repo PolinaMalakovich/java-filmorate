@@ -14,6 +14,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.temporal.ChronoUnit;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,6 +43,7 @@ class FilmTest {
     public void nameValidation(String name) {
         Film film = new Film(
                 0L,
+                new HashSet<>(),
                 name,
                 "description",
                 LocalDate.of(2021, Month.JUNE, 26),
@@ -58,6 +60,7 @@ class FilmTest {
     public void descriptionCannotBeLongerThan200Characters() {
         Film film = new Film(
                 0L,
+                new HashSet<>(),
                 "film",
                 "The description of this film is way longer than it should be. " +
                         "It must not be longer than 200 characters, " +
@@ -77,6 +80,7 @@ class FilmTest {
     public void releaseDateCannotBeEarlierThan28December1895() {
         Film film = new Film(
                 0L,
+                new HashSet<>(),
                 "name",
                 "description",
                 FIRST_FILM.minusDays(1),

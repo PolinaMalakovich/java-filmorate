@@ -1,36 +1,45 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.Data;
-import lombok.With;
-
+import java.time.LocalDate;
+import java.util.Set;
+import java.util.stream.Stream;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Past;
-import java.time.LocalDate;
+import javax.validation.constraints.PastOrPresent;
+import lombok.Value;
+import lombok.With;
 
 @With
-@Data
+@Value
 public class User {
-    private final Long id;
+  Long id;
 
-    @NotEmpty(message = "Email cannot be null or empty")
-    @Email(message = "Email should be valid")
-    private final String email;
+  @NotEmpty(message = "Email cannot be null or empty")
+  @Email(message = "Email should be valid")
+  String email;
 
-    @NotBlank(message = "Login cannot be blank")
-    private final String login;
+  @NotBlank(message = "Login cannot be blank")
+  String login;
 
-    private final String name;
+  String name;
 
-    @Past(message = "Birthday should be in the past")
-    private final LocalDate birthday;
+  @PastOrPresent(message = "Birthday should be in the past")
+  LocalDate birthday;
 
-    public User(Long id, String email, String login, String name, LocalDate birthday) {
-        this.id = id;
-        this.email = email;
-        this.login = login;
-        this.name = name == null || name.isEmpty() || name.isBlank() ? login : name;
-        this.birthday = birthday;
-    }
+  Set<Long> friends;
+
+  public User(Long id, String email, String login, String name, LocalDate birthday,
+              Set<Long> friends) {
+    this.id = id;
+    this.email = email;
+    this.login = login;
+    this.name = name == null || name.isBlank() ? login : name;
+    this.birthday = birthday;
+    this.friends = friends;
+  }
+
+  public Stream<Long> getFriends() {
+    return friends != null ? friends.stream() : Stream.empty();
+  }
 }
