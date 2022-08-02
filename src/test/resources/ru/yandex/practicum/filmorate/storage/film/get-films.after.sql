@@ -1,0 +1,7 @@
+DELETE FROM films WHERE id = 1;
+
+DELETE FROM films WHERE id = 2;
+
+DELETE FROM films WHERE id = 3;
+
+ALTER TABLE films ALTER COLUMN id RESTART WITH 1;

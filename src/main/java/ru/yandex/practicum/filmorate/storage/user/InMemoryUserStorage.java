@@ -13,21 +13,11 @@ public class InMemoryUserStorage implements UserStorage {
   private long id = 1;
 
   @Override
-  public User addUser(final User newUser) {
+  public Optional<User> addUser(final User newUser) {
     final User user = newUser.withId(id++);
     users.put(user.getId(), user);
 
-    return user;
-  }
-
-  @Override
-  public Optional<User> updateUser(final User user) {
-    return getUserById(user.getId())
-        .map(f -> {
-          users.replace(user.getId(), user);
-
-          return user;
-        });
+    return Optional.of(user);
   }
 
   @Override
@@ -38,5 +28,15 @@ public class InMemoryUserStorage implements UserStorage {
   @Override
   public Stream<User> getUsers() {
     return users.values().stream();
+  }
+
+  @Override
+  public Optional<User> updateUser(final User user) {
+    return getUserById(user.getId())
+        .map(f -> {
+          users.replace(user.getId(), user);
+
+          return user;
+        });
   }
 }

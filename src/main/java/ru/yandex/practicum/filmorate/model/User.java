@@ -1,17 +1,20 @@
 package ru.yandex.practicum.filmorate.model;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Stream;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.PastOrPresent;
+import lombok.EqualsAndHashCode;
 import lombok.Value;
 import lombok.With;
 
 @With
 @Value
+@EqualsAndHashCode(doNotUseGetters = true)
 public class User {
   Long id;
 
@@ -36,10 +39,10 @@ public class User {
     this.login = login;
     this.name = name == null || name.isBlank() ? login : name;
     this.birthday = birthday;
-    this.friends = friends;
+    this.friends = friends == null ? Collections.emptySet() : friends;
   }
 
   public Stream<Long> getFriends() {
-    return friends != null ? friends.stream() : Stream.empty();
+    return friends.stream();
   }
 }

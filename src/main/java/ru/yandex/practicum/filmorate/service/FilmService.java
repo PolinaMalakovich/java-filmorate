@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -23,13 +24,14 @@ public final class FilmService {
   private final UserService userService;
 
   @Autowired
-  public FilmService(final FilmStorage filmStorage, final UserService userService) {
+  public FilmService(@Qualifier("DbFilmStorage") final FilmStorage filmStorage,
+                     final UserService userService) {
     this.filmStorage = filmStorage;
     this.userService = userService;
   }
 
   public Film addFilm(final Film newFilm) {
-    final Film film = filmStorage.addFilm(newFilm);
+    final Film film = filmStorage.addFilm(newFilm).orElseThrow(IllegalArgumentException::new);
     log.info("New film created successfully");
 
     return film;

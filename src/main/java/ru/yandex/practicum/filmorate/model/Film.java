@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import lombok.EqualsAndHashCode;
 import lombok.Value;
 import lombok.With;
 import ru.yandex.practicum.filmorate.validation.FilmDuration;
@@ -14,6 +15,7 @@ import ru.yandex.practicum.filmorate.validation.FilmReleaseDate;
 
 @With
 @Value
+@EqualsAndHashCode(doNotUseGetters = true)
 public class Film {
   Long id;
   Set<Long> likes;
@@ -31,7 +33,14 @@ public class Film {
   @FilmDuration
   Duration duration;
 
+  Set<Genre> genres;
+
+  Mpa mpa;
+
   public Stream<Long> getLikes() {
     return likes != null ? likes.stream() : Stream.empty();
+  }
+  public Stream<Genre> getGenres() {
+    return genres != null ? genres.stream() : Stream.empty();
   }
 }

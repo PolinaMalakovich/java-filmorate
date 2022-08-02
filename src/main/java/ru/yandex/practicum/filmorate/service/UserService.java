@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -18,12 +19,12 @@ public final class UserService {
   private final UserStorage userStorage;
 
   @Autowired
-  public UserService(final UserStorage userStorage) {
+  public UserService(@Qualifier("dbUserStorage") final UserStorage userStorage) {
     this.userStorage = userStorage;
   }
 
   public User addUser(final User newUser) {
-    final User user = userStorage.addUser(newUser);
+    final User user = userStorage.addUser(newUser).orElseThrow(IllegalArgumentException::new);
     log.info("New user created successfully");
 
     return user;
@@ -47,22 +48,15 @@ public final class UserService {
   }
 
   public User addFriend(final Long id, final Long friendId) {
-    final User user = addOrDeleteFriendHelper(id, friendId, true);
-    final User friend = addOrDeleteFriendHelper(friendId, id, true);
-    updateUser(friend);
-
-    return updateUser(user);
+    return updateUser(addOrDeleteFriendHelper(id, friendId, true));
   }
 
   public User deleteFriend(final Long id, final Long friendId) {
-    final User user = addOrDeleteFriendHelper(id, friendId, false);
-    final User friend = addOrDeleteFriendHelper(friendId, id, false);
-    updateUser(friend);
-
-    return updateUser(user);
+   return updateUser(addOrDeleteFriendHelper(id, friendId, false));
   }
 
-  private User addOrDeleteFriendHelper(final Long id, final Long friendId,
+  private User addOrDeleteFriendHelper(final Long id,
+                                       final Long friendId,
                                        final boolean shouldAdd) {
     final User user = getUserById(id);
     final User friend = getUserById(friendId);

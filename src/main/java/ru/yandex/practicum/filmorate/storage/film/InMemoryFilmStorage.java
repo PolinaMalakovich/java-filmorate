@@ -13,11 +13,11 @@ public final class InMemoryFilmStorage implements FilmStorage {
   private long id = 1;
 
   @Override
-  public Film addFilm(final Film newFilm) {
+  public Optional<Film> addFilm(final Film newFilm) {
     final Film film = newFilm.withId(id++);
     films.put(film.getId(), film);
 
-    return film;
+    return Optional.of(film);
   }
 
   @Override
