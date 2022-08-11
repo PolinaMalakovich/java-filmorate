@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.Set;
 import java.util.stream.Stream;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
@@ -35,6 +36,7 @@ public class Film {
 
   Set<Genre> genres;
 
+  @NotNull
   Mpa mpa;
 
   public Stream<Long> getLikes() {

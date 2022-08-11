@@ -7,25 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.model.Film;
 
 @Component
 public class DbLikeStorage implements LikeStorage {
-  public static final String LIKES_TABLE_NAME = "likes";
-  public static final String LIKES_FILM_ID_COLUMN = "film_id";
-  public static final String LIKES_USER_ID_COLUMN = "user_id";
-
-  // language=sql
-  public static final String SELECT_LIKES_BY_FILM_ID = "SELECT " +
-      LIKES_USER_ID_COLUMN +
-      " FROM " + LIKES_TABLE_NAME +
-      " WHERE " + LIKES_FILM_ID_COLUMN + " = ?;";
-
-  // language=sql
-  public static final String DELETE_LIKES_BY_FILM_ID = "DELETE FROM " +
-      LIKES_TABLE_NAME +
-      " WHERE " + LIKES_FILM_ID_COLUMN + " = ?;";
-
   private final JdbcTemplate jdbcTemplate;
 
   @Autowired
@@ -34,37 +18,39 @@ public class DbLikeStorage implements LikeStorage {
   }
 
   @Override
-  public Stream<Long> addLikes(Film film) {
+  public Stream<Long> addLikes(Long id, Stream<Long> likes) {
     final SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
-        .withTableName(LIKES_TABLE_NAME);
-    film.getLikes().forEach(userId -> simpleJdbcInsert.execute(toMap(film.getId(), userId)));
+        .withTableName("likes");
+    likes.forEach(userId -> simpleJdbcInsert.execute(toMap(id, userId)));
 
-    return getLikes(film.getId());
+    return getLikes(id);
   }
 
   @Override
   public Stream<Long> getLikes(Long filmId) {
+    final String selectLikesByFilmId = "SELECT user_id FROM likes WHERE film_id = ?;";
     return jdbcTemplate
-        .queryForList(SELECT_LIKES_BY_FILM_ID, Long.class, filmId)
+        .queryForList(selectLikesByFilmId, Long.class, filmId)
         .stream();
   }
 
   @Override
-  public Stream<Long> updateLikes(Film film) {
-    deleteLikes(film.getId());
+  public Stream<Long> updateLikes(Long id, Stream<Long> likes) {
+    deleteLikes(id);
 
-    return addLikes(film);
+    return addLikes(id, likes);
   }
 
   private Map<String, Object> toMap(Long filmId, Long userId) {
     Map<String, Object> parameters = new HashMap<>();
-    parameters.put(LIKES_FILM_ID_COLUMN, filmId);
-    parameters.put(LIKES_USER_ID_COLUMN, userId);
+    parameters.put("film_id", filmId);
+    parameters.put("user_id", userId);
 
     return parameters;
   }
 
   private void deleteLikes(Long filmId) {
-    jdbcTemplate.update(DELETE_LIKES_BY_FILM_ID, filmId);
+    final String deleteLikesByFilmId = "DELETE FROM likes WHERE film_id = ?;";
+    jdbcTemplate.update(deleteLikesByFilmId, filmId);
   }
 }

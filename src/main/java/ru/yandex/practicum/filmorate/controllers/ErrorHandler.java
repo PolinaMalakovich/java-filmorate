@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
+import ru.yandex.practicum.filmorate.exception.SaveException;
 
 @RestControllerAdvice
 public final class ErrorHandler {
@@ -44,5 +45,10 @@ public final class ErrorHandler {
   @ExceptionHandler
   public ResponseEntity<String> handleThrowable(final Throwable e) {
     return new ResponseEntity<>(e.getMessage(), INTERNAL_SERVER_ERROR);
+  }
+
+  @ExceptionHandler
+  public ResponseEntity<String> handleSaveException(final SaveException e) {
+    return new ResponseEntity<>(e.getMessage(), NOT_FOUND);
   }
 }

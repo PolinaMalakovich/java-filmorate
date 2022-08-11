@@ -13,21 +13,6 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 
 @Component
 public class DbMpaStorage implements MpaStorage {
-  private static final String MPAS_TABLE_NAME = "mpas";
-  private static final String MPAS_ID_COLUMN = "id";
-  private static final String MPAS_NAME_COLUMN = "name";
-
-  // language=sql
-  private static final String SELECT_RATING_BY_ID = "SELECT " +
-      MPAS_ID_COLUMN + ", " +
-      MPAS_NAME_COLUMN +
-      " FROM " + MPAS_TABLE_NAME +
-      " WHERE " + MPAS_ID_COLUMN + " = ?" + ";";
-
-  // language=sql
-  private static final String SELECT_RATINGS = "SELECT * " +
-      " FROM " + MPAS_TABLE_NAME + ";";
-
   private final JdbcTemplate jdbcTemplate;
 
   public DbMpaStorage(JdbcTemplate jdbcTemplate) {
@@ -37,8 +22,8 @@ public class DbMpaStorage implements MpaStorage {
   @Override
   public Optional<Mpa> addMpa(Mpa mpa) {
     final SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
-        .withTableName(MPAS_TABLE_NAME)
-        .usingGeneratedKeyColumns(MPAS_ID_COLUMN);
+        .withTableName("mpas")
+        .usingGeneratedKeyColumns("id");
     Map<String, Object> args = toMap(mpa);
     long id = simpleJdbcInsert.executeAndReturnKey(args).longValue();
 
@@ -47,30 +32,32 @@ public class DbMpaStorage implements MpaStorage {
 
   @Override
   public Optional<Mpa> getMpaById(Long id) {
+    final String selectRatingById = "SELECT id, name FROM mpas WHERE id = ?;";
     return jdbcTemplate
-        .query(SELECT_RATING_BY_ID, this::toMpa, id)
+        .query(selectRatingById, this::toMpa, id)
         .stream()
         .findFirst();
   }
 
   @Override
   public Stream<Mpa> getMpas() {
+    final String selectRatings = "SELECT *  FROM mpas;";
     return jdbcTemplate
-        .query(SELECT_RATINGS, this::toMpa)
+        .query(selectRatings, this::toMpa)
         .stream();
   }
 
   private Mpa toMpa(ResultSet resultSet, int rowNumber) throws SQLException {
     return new Mpa(
-        resultSet.getLong(MPAS_ID_COLUMN),
-        resultSet.getString(MPAS_NAME_COLUMN)
+        resultSet.getLong("id"),
+        resultSet.getString("name")
     );
   }
 
   private Map<String, Object> toMap(Mpa mpa) {
     Map<String, Object> parameters = new HashMap<>();
-    parameters.put(MPAS_ID_COLUMN, mpa.getId());
-    parameters.put(MPAS_NAME_COLUMN, mpa.getName());
+    parameters.put("id", mpa.getId());
+    parameters.put("name", mpa.getName());
 
     return parameters;
   }

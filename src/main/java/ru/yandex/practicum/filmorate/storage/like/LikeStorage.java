@@ -4,9 +4,9 @@ import java.util.stream.Stream;
 import ru.yandex.practicum.filmorate.model.Film;
 
 public interface LikeStorage {
-  Stream<Long> addLikes(Film film);
+  Stream<Long> addLikes(Long id, Stream<Long> likes);
 
   Stream<Long> getLikes(Long filmId);
 
-  Stream<Long> updateLikes(Film film);
+  Stream<Long> updateLikes(Long id, Stream<Long> likes);
 }

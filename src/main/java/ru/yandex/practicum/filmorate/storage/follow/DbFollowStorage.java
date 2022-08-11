@@ -9,25 +9,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Follow;
-import ru.yandex.practicum.filmorate.model.User;
 
 @Component
 public class DbFollowStorage implements FollowStorage {
-  private static final String FRIENDS_TABLE_NAME = "friends";
-  private static final String FRIENDS_USER_ID_COLUMN = "user_id";
-  private static final String FRIENDS_FRIEND_ID_COLUMN = "friend_id";
-
-  // language=sql
-  private static final String SELECT_FRIENDS_BY_USER_ID = "SELECT " +
-      FRIENDS_FRIEND_ID_COLUMN +
-      " FROM " + FRIENDS_TABLE_NAME +
-      " WHERE " + FRIENDS_USER_ID_COLUMN + " = ?;";
-
-  // language=sql
-  private static final String DELETE_FRIENDS_BY_USER_ID = "DELETE FROM " +
-      FRIENDS_TABLE_NAME +
-      " WHERE " + FRIENDS_USER_ID_COLUMN + " = ?;";
-
   private final JdbcTemplate jdbcTemplate;
 
   public DbFollowStorage(JdbcTemplate jdbcTemplate) {
@@ -35,44 +19,46 @@ public class DbFollowStorage implements FollowStorage {
   }
 
   @Override
-  public Stream<Long> addFollowers(User user) {
+  public Stream<Long> addFollowers(Long id, Stream<Long> followers) {
     final SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
-        .withTableName(FRIENDS_TABLE_NAME);
-    user.getFriends().forEach(friendId -> simpleJdbcInsert.execute(toMap(user.getId(), friendId)));
+        .withTableName("friends");
+    followers.forEach(friendId -> simpleJdbcInsert.execute(toMap(id, friendId)));
 
-    return getFollowers(user.getId());
+    return getFollowers(id);
   }
 
   @Override
   public Stream<Long> getFollowers(Long userId) {
+    final String selectFriendsByUserId = "SELECT friend_id FROM friends WHERE user_id = ?;";
     return jdbcTemplate
-        .queryForList(SELECT_FRIENDS_BY_USER_ID, Long.class, userId)
+        .queryForList(selectFriendsByUserId, Long.class, userId)
         .stream();
   }
 
   @Override
-  public Stream<Long> updateFollowers(User user) {
-    deleteFollowers(user.getId());
+  public Stream<Long> updateFollowers(Long id, Stream<Long> followers) {
+    deleteFollowers(id);
 
-    return addFollowers(user);
+    return addFollowers(id, followers);
   }
 
   private Follow toFollow(ResultSet resultSet, int rowNumber) throws SQLException {
     return new Follow(
-        resultSet.getLong(FRIENDS_USER_ID_COLUMN),
-        resultSet.getLong(FRIENDS_FRIEND_ID_COLUMN)
+        resultSet.getLong("user_id"),
+        resultSet.getLong("friend_id")
     );
   }
 
   private Map<String, Object> toMap(Long userId, Long friendId) {
     Map<String, Object> parameters = new HashMap<>();
-    parameters.put(FRIENDS_USER_ID_COLUMN, userId);
-    parameters.put(FRIENDS_FRIEND_ID_COLUMN, friendId);
+    parameters.put("user_id", userId);
+    parameters.put("friend_id", friendId);
 
     return parameters;
   }
 
   private void deleteFollowers(Long userId) {
-    jdbcTemplate.update(DELETE_FRIENDS_BY_USER_ID, userId);
+    final String deleteFriendsByUserId = "DELETE FROM friends WHERE user_id = ?;";
+    jdbcTemplate.update(deleteFriendsByUserId, userId);
   }
 }

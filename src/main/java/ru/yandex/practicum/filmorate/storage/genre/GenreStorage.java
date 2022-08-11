@@ -8,7 +8,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 public interface GenreStorage {
   Optional<Genre> addGenre(Genre genre);
 
-  Stream<Genre> addGenres(Film film);
+  Stream<Genre> addGenres(Long id, Stream<Genre> genres);
 
   Optional<Genre> getGenreById(Long genreId);
 
@@ -16,5 +16,5 @@ public interface GenreStorage {
 
   Stream<Genre> getGenresByFilmId(Long filmId);
 
-  Stream<Genre> updateGenres(Film film);
+  Stream<Genre> updateGenres(Long id, Stream<Genre> genres);
 }
