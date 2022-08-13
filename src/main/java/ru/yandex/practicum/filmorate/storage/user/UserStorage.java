@@ -11,5 +11,9 @@ public interface UserStorage {
 
   Stream<User> getUsers();
 
+  Stream<User> getFriends(Long id);
+
+  Stream<User> getMutualFriends(final Long id, final Long otherId);
+
   Optional<User> updateUser(User user);
 }

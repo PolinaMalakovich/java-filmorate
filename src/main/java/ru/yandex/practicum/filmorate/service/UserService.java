@@ -88,17 +88,10 @@ public final class UserService {
   }
 
   public Stream<User> getMutualFriends(final Long id, final Long otherId) {
-    final User user = getUserById(id);
-    final User other = getUserById(otherId);
-    Set<Long> mutualFriends = user.getFriends().collect(Collectors.toSet());
-    mutualFriends.retainAll(other.getFriends().collect(toSet()));
-
-    return mutualFriends.stream().map(this::getUserById);
+    return userStorage.getMutualFriends(id, otherId);
   }
 
   public Stream<User> getFriends(final Long id) {
-    return getUserById(id)
-        .getFriends()
-        .map(this::getUserById);
+    return userStorage.getFriends(id);
   }
 }

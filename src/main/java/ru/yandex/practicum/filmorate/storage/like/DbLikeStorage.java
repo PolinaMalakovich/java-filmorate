@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 
 @Component
 public class DbLikeStorage implements LikeStorage {
@@ -18,12 +19,19 @@ public class DbLikeStorage implements LikeStorage {
   }
 
   @Override
-  public Stream<Long> addLikes(Long id, Stream<Long> likes) {
+  public void addLike(final Long id, final Long userId) {
     final SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
         .withTableName("likes");
-    likes.forEach(userId -> simpleJdbcInsert.execute(toMap(id, userId)));
+    simpleJdbcInsert.execute(toMap(id, userId));
+  }
 
-    return getLikes(id);
+  @Override
+  public void deleteLike(final Long id, final Long userId) {
+    final String deleteLike = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
+    boolean isDeleted = jdbcTemplate.update(deleteLike, id, userId) == 1;
+    if (!isDeleted) {
+      throw new EntityNotFoundException("Like", userId);
+    }
   }
 
   @Override
@@ -34,23 +42,11 @@ public class DbLikeStorage implements LikeStorage {
         .stream();
   }
 
-  @Override
-  public Stream<Long> updateLikes(Long id, Stream<Long> likes) {
-    deleteLikes(id);
-
-    return addLikes(id, likes);
-  }
-
   private Map<String, Object> toMap(Long filmId, Long userId) {
     Map<String, Object> parameters = new HashMap<>();
     parameters.put("film_id", filmId);
     parameters.put("user_id", userId);
 
     return parameters;
-  }
-
-  private void deleteLikes(Long filmId) {
-    final String deleteLikesByFilmId = "DELETE FROM likes WHERE film_id = ?;";
-    jdbcTemplate.update(deleteLikesByFilmId, filmId);
   }
 }

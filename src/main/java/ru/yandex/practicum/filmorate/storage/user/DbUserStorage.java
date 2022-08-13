@@ -54,6 +54,31 @@ public class DbUserStorage implements UserStorage {
   }
 
   @Override
+  public Stream<User> getFriends(Long id) {
+    final String selectFriends = "SELECT users.* " +
+        "FROM friends " +
+        "LEFT JOIN users ON friends.friend_id = users.id " +
+        "WHERE user_id = ? " +
+        "ORDER BY users.id;";
+    return jdbcTemplate
+        .query(selectFriends, this::toUser, id)
+        .stream();
+  }
+
+  @Override
+  public Stream<User> getMutualFriends(Long id, Long otherId) {
+    final String selectMutualFriends = "SELECT users.* " +
+        "FROM friends " +
+        "LEFT JOIN users ON friends.friend_id = users.id " +
+        "WHERE user_id IN (?, ?) " +
+        "GROUP BY friend_id " +
+        "HAVING COUNT(friends.user_id) = 2;";
+    return jdbcTemplate
+        .query(selectMutualFriends, this::toUser, id, otherId)
+        .stream();
+  }
+
+  @Override
   public Optional<User> updateUser(User user) {
     final String updateUser = "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? " +
         "WHERE id = ?;";

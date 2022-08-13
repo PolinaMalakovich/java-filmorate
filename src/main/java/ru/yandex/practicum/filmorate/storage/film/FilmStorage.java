@@ -12,4 +12,6 @@ public interface FilmStorage {
   Stream<Film> getFilms();
 
   Optional<Film> updateFilm(Film film);
+
+  Stream<Film> getMostPopularFilms(final Integer count);
 }

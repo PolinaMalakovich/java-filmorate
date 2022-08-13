@@ -26,22 +26,18 @@ public final class FilmService {
   private final FilmStorage filmStorage;
   private final LikeStorage likeStorage;
   private final GenreStorage genreStorage;
-  private final UserService userService;
 
   @Autowired
   public FilmService(@Qualifier("DbFilmStorage") final FilmStorage filmStorage,
-                     LikeStorage likeStorage, GenreStorage genreStorage,
-                     final UserService userService) {
+                     LikeStorage likeStorage, GenreStorage genreStorage) {
     this.filmStorage = filmStorage;
     this.likeStorage = likeStorage;
     this.genreStorage = genreStorage;
-    this.userService = userService;
   }
 
   public Film addFilm(final Film newFilm) {
     Long id = filmStorage.addFilm(newFilm)
         .map(film -> {
-          likeStorage.addLikes(film.getId(), newFilm.getLikes());
           genreStorage.addGenres(film.getId(), newFilm.getGenres());
           return film.getId();
         })
@@ -54,7 +50,6 @@ public final class FilmService {
   public Film updateFilm(final Film film) {
     Long id = filmStorage.updateFilm(film)
         .map(updated -> {
-          likeStorage.updateLikes(updated.getId(), film.getLikes());
           genreStorage.updateGenres(updated.getId(), film.getGenres());
           return updated.getId();
         })
@@ -82,31 +77,16 @@ public final class FilmService {
   }
 
   public Film addLike(final Long id, final Long userId) {
-    return addOrDeleteLikeHelper(id, userId, true);
+    likeStorage.addLike(id, userId);
+    return getFilmById(id);
   }
 
   public Film deleteLike(final Long id, final Long userId) {
-    return addOrDeleteLikeHelper(id, userId, false);
-  }
-
-  private Film addOrDeleteLikeHelper(final Long id, final Long userId, final boolean shouldAdd) {
-    final User user = userService.getUserById(userId);
-    final Film film = getFilmById(id);
-    Set<Long> likes = film.getLikes().collect(toSet());
-
-    if (shouldAdd) {
-      likes.add(user.getId());
-    } else {
-      likes.remove(user.getId());
-    }
-    likeStorage.updateLikes(film.getId(), likes.stream());
-
-    return getFilmById(film.getId());
+    likeStorage.deleteLike(id, userId);
+    return getFilmById(id);
   }
 
   public Stream<Film> getMostPopularFilms(final Integer count) {
-    return getFilms()
-        .sorted(MOST_LIKED_FILMS_FIRST)
-        .limit(count);
+    return filmStorage.getMostPopularFilms(count);
   }
 }

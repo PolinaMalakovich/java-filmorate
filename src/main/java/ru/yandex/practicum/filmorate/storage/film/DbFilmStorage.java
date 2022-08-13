@@ -39,10 +39,7 @@ public class DbFilmStorage implements FilmStorage {
 
   @Override
   public Optional<Film> getFilmById(Long id) {
-    final String selectFilmById =
-        "SELECT films.id, films.name, description, release_date, duration, " +
-            "mpas.id AS mpa_id, mpas.name AS mpa_name " +
-            "FROM films LEFT JOIN mpas ON films.mpa = mpas.id WHERE films.id = ?;";
+    final String selectFilmById = "SELECT * FROM films f, mpas m WHERE f.mpa = m.id AND f.id = ?;";
 
     return jdbcTemplate
         .query(selectFilmById, this::toFilm, id)
@@ -52,10 +49,7 @@ public class DbFilmStorage implements FilmStorage {
 
   @Override
   public Stream<Film> getFilms() {
-    final String selectFilms =
-        "SELECT films.id, films.name, description, release_date, duration, " +
-            "mpas.id AS mpa_id, mpas.name AS mpa_name " +
-            "FROM films LEFT JOIN mpas ON films.mpa = mpas.id;";
+    final String selectFilms = "SELECT * FROM films f, mpas m WHERE f.mpa = m.id;";
     return jdbcTemplate
         .query(selectFilms, this::toFilm)
         .stream();
@@ -79,16 +73,29 @@ public class DbFilmStorage implements FilmStorage {
     return getFilmById(film.getId());
   }
 
+  @Override
+  public Stream<Film> getMostPopularFilms(final Integer count) {
+    final String selectMostPopularFilms = "SELECT * " +
+        "FROM films " +
+        "LEFT JOIN likes ON id = film_id " +
+        "LEFT JOIN mpas ON mpas.id = films.mpa " +
+        "GROUP BY films.id " +
+        "ORDER BY COUNT(user_id) DESC " +
+        "LIMIT ?;";
+    return jdbcTemplate.query(selectMostPopularFilms, this::toFilm, count)
+        .stream();
+  }
+
   private Film toFilm(ResultSet resultSet, int rowNumber) throws SQLException {
     return new Film(
-        resultSet.getLong("id"),
+        resultSet.getLong("films.id"),
         new HashSet<>(),
-        resultSet.getString("name"),
+        resultSet.getString("films.name"),
         resultSet.getString("description"),
         resultSet.getDate("release_date").toLocalDate(),
         Duration.ofSeconds(resultSet.getInt("duration")),
         new HashSet<>(),
-        new Mpa(resultSet.getLong("mpa_id"), resultSet.getString("mpa_name"))
+        new Mpa(resultSet.getLong("mpas.id"), resultSet.getString("mpas.name"))
     );
   }
 
