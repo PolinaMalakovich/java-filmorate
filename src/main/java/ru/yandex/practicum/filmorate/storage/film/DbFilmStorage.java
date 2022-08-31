@@ -95,7 +95,8 @@ public class DbFilmStorage implements FilmStorage {
         resultSet.getDate("release_date").toLocalDate(),
         Duration.ofSeconds(resultSet.getInt("duration")),
         new HashSet<>(),
-        new Mpa(resultSet.getLong("mpas.id"), resultSet.getString("mpas.name"))
+        new Mpa(resultSet.getLong("mpas.id"), resultSet.getString("mpas.name")),
+        new HashSet<>()
     );
   }
 
