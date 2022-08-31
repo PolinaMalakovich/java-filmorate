@@ -38,8 +38,8 @@ public class DirectorController {
   }
 
   @GetMapping
-  public List<Director> getDirectors() {
-    return directorService.getDirectors().collect(Collectors.toList());
+  public Stream<Director> getDirectors() {
+    return directorService.getDirectors();
   }
 
   @PutMapping
