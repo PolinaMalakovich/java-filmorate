@@ -39,6 +39,8 @@ public class Film {
   @NotNull
   Mpa mpa;
 
+  Set<Director> directors;
+
   public Stream<Long> getLikes() {
     return likes != null ? likes.stream() : Stream.empty();
   }
