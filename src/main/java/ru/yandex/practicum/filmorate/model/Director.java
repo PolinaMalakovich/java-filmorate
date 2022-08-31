@@ -5,6 +5,7 @@ import lombok.Value;
 
 @Value
 public class Director {
+  @Positive
   Long id;
 
   @NotBlank
